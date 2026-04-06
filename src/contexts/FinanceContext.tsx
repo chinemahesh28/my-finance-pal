@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
-const API_BASE_URL = "http://localhost:9090/api";
+const API_BASE_URL = "https://backendfinancebudy.onrender.com/api";
 
 export type TransactionType = "income" | "expense";
 
@@ -58,12 +58,12 @@ interface FinanceContextType {
 }
 
 const defaultCategories = [
-    { name: "Food & Dining", icon: "🍔", type: "EXPENSE" },
-    { name: "Transportation", icon: "🚗", type: "EXPENSE" },
-    { name: "Bills & Utilities", icon: "💡", type: "EXPENSE" },
-    { name: "Shopping", icon: "🛍️", type: "EXPENSE" },
-    { name: "Salary", icon: "💰", type: "INCOME" },
-    { name: "Freelance", icon: "💻", type: "INCOME" }
+  { name: "Food & Dining", icon: "🍔", type: "EXPENSE" },
+  { name: "Transportation", icon: "🚗", type: "EXPENSE" },
+  { name: "Bills & Utilities", icon: "💡", type: "EXPENSE" },
+  { name: "Shopping", icon: "🛍️", type: "EXPENSE" },
+  { name: "Salary", icon: "💰", type: "INCOME" },
+  { name: "Freelance", icon: "💻", type: "INCOME" }
 ];
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -116,18 +116,18 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!response.ok) return;
       const data = await response.json();
       if (data.length === 0) {
-          // Seed if empty
-          for (const cat of defaultCategories) {
-              await apiFetch(`/categories`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(cat)
-              });
-          }
-          const retry = await apiFetch(`/categories`);
-          setCategories(await retry.json());
+        // Seed if empty
+        for (const cat of defaultCategories) {
+          await apiFetch(`/categories`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cat)
+          });
+        }
+        const retry = await apiFetch(`/categories`);
+        setCategories(await retry.json());
       } else {
-          setCategories(data);
+        setCategories(data);
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
@@ -161,16 +161,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (data.length > 0) {
         let targetId = currentAccountId;
         setAccountId(prevId => {
-           targetId = targetId || prevId;
-           return targetId;
+          targetId = targetId || prevId;
+          return targetId;
         });
-        
+
         setAccountId(prevId => {
-           const activeId = currentAccountId || prevId || data[0].id;
-           const acc = data.find((a: any) => a.id === activeId) || data[0];
-           setAccount(acc);
-           fetchTransactions(acc.id);
-           return acc.id;
+          const activeId = currentAccountId || prevId || data[0].id;
+          const acc = data.find((a: any) => a.id === activeId) || data[0];
+          setAccount(acc);
+          fetchTransactions(acc.id);
+          return acc.id;
         });
       }
     } catch (error) {
@@ -193,16 +193,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         headers: { "Authorization": header }
       });
       if (!response.ok) {
-          toast.error("Login Failed", { description: "Invalid username or password" });
-          return false;
+        toast.error("Login Failed", { description: "Invalid username or password" });
+        return false;
       }
       const userData = await response.json();
       const userObj = { id: userData.id, name: userData.username, email: userData.email, avatar: userData.username[0].toUpperCase() };
-      
+
       localStorage.setItem("authHeader", header);
       localStorage.setItem("financeUser", JSON.stringify(userObj));
       setUser(userObj);
-      
+
       toast.success("Welcome back!", { description: `Signed in as ${userData.username}` });
       return true;
     } catch (error) {
@@ -220,8 +220,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         body: JSON.stringify({ username: name, email, password })
       });
       if (!response.ok) {
-          toast.error("Registration Failed", { description: "Email might already be taken" });
-          return false;
+        toast.error("Registration Failed", { description: "Email might already be taken" });
+        return false;
       }
       return await login(name, password); // Automatically login after registering
     } catch (error) {
@@ -232,14 +232,14 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [login]);
 
   const logout = useCallback(() => {
-      localStorage.removeItem("authHeader");
-      localStorage.removeItem("financeUser");
-      setUser(null);
-      setAccount(null);
-      setAccounts([]);
-      setAccountId(null);
-      setTransactions([]);
-      toast.info("Signed Out", { description: "You have been logged out successfully" });
+    localStorage.removeItem("authHeader");
+    localStorage.removeItem("financeUser");
+    setUser(null);
+    setAccount(null);
+    setAccounts([]);
+    setAccountId(null);
+    setTransactions([]);
+    toast.info("Signed Out", { description: "You have been logged out successfully" });
   }, []);
 
 
@@ -254,28 +254,28 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addTransaction = useCallback(async (t: Omit<Transaction, "id">) => {
     if (!accountId) return;
     try {
-        const response = await apiFetch(`/transactions`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                amount: t.amount,
-                description: t.notes,
-                transactionDate: new Date(t.date).toISOString(),
-                type: t.type.toUpperCase(),
-                account: { id: accountId },
-                category: { id: categories.find(c => c.name === t.category)?.id || 1 }
-            })
-        });
-        if (response.ok) {
-            triggerNotification("Transaction Added", `Successfully added ${t.type} formatting to $${t.amount}.`, "info");
-            fetchTransactions(accountId);
-            if (user) fetchUserAccounts(user.id);
-        } else {
-            triggerNotification("Error", "Failed to add transaction.", "alert");
-        }
+      const response = await apiFetch(`/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: t.amount,
+          description: t.notes,
+          transactionDate: new Date(t.date).toISOString(),
+          type: t.type.toUpperCase(),
+          account: { id: accountId },
+          category: { id: categories.find(c => c.name === t.category)?.id || 1 }
+        })
+      });
+      if (response.ok) {
+        triggerNotification("Transaction Added", `Successfully added ${t.type} formatting to $${t.amount}.`, "info");
+        fetchTransactions(accountId);
+        if (user) fetchUserAccounts(user.id);
+      } else {
+        triggerNotification("Error", "Failed to add transaction.", "alert");
+      }
     } catch (error) {
-        console.error("Failed to add transaction:", error);
-        triggerNotification("Error", "An error occurred while adding transaction.", "alert");
+      console.error("Failed to add transaction:", error);
+      triggerNotification("Error", "An error occurred while adding transaction.", "alert");
     }
   }, [accountId, categories, fetchTransactions, fetchUserAccounts, triggerNotification, user, apiFetch]);
 
@@ -298,15 +298,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const newAcc = await response.json();
         setAccounts(prev => [...prev, newAcc]);
         if (!accountId) {
-           setAccountId(newAcc.id);
-           setAccount(newAcc);
+          setAccountId(newAcc.id);
+          setAccount(newAcc);
         }
       } else {
         triggerNotification("Error", "Failed to create account.", "alert");
       }
     } catch (error) {
-       console.error("Failed to create account:", error);
-       triggerNotification("Error", "An exception occurred.", "alert");
+      console.error("Failed to create account:", error);
+      triggerNotification("Error", "An exception occurred.", "alert");
     }
   }, [user, triggerNotification, accountId, apiFetch]);
 
