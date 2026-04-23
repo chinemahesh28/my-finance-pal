@@ -160,3 +160,37 @@
     background: hsl(var(--card) / 0.8);
   }
 }
+
+/* Bottom nav horizontal scroll at narrow widths */
+@media (max-width: 450px) {
+  .bottom-nav-container {
+    justify-content: flex-start !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    gap: 0.25rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .bottom-nav-container::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .bottom-nav-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .bottom-nav-container::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+  }
+
+  .bottom-nav-item {
+    flex-shrink: 0;
+    min-width: 60px;
+  }
+}
+
